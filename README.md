@@ -1,8 +1,8 @@
-# Blog Website with React JS - FIREBASE - Sass 
+# Blog Website with React JS - FIREBASE - SASS
     
 <img src="ss.png"/>  
 
-### Live Link - https://netflix-react-aca99.web.app/
+### Live Link - 
 
 <br/>
 

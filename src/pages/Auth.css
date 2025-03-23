@@ -1,0 +1,154 @@
+.auth-container {
+  max-width: 960px;
+  margin: 60px auto;
+  padding: 25px;
+  font-family: 'DotGothic16', sans-serif;
+}
+
+.auth-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.auth-title {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 1.8rem;
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 500;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 1rem;
+  color: #333;
+}
+
+.form-input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #2c974b;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(44, 151, 75, 0.2);
+}
+
+.auth-button {
+  background-color: #E8F3D6;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 1rem;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-button:hover {
+  background-color: #d9e7c2;
+}
+
+.auth-button:disabled {
+  background-color: #f5f9ef;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: #666;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex-grow: 1;
+  background: #ddd;
+  height: 1px;
+  margin: 0 10px;
+}
+
+.auth-switch {
+  text-align: center;
+}
+
+.switch-button {
+  background: none;
+  border: none;
+  color: #2c974b;
+  cursor: pointer;
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  padding: 5px;
+}
+
+.switch-button:hover {
+  color: #22753a;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  width: 20px;
+  height: 20px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    margin: 30px auto;
+    padding: 15px;
+  }
+  
+  .auth-card {
+    padding: 20px;
+  }
+  
+  .auth-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .form-input,
+  .auth-button {
+    padding: 10px;
+  }
+} 

@@ -1,0 +1,19 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow anyone to read images
+    match /{allImages=**} {
+      allow read;
+    }
+    
+    // Allow authenticated users to upload images to blogImages folder
+    match /blogImages/{imageId} {
+      allow create, update, delete: if request.auth != null;
+    }
+    
+    // Keep the original user-specific path for backward compatibility
+    match /blogImages/{userId}/{imageId} {
+      allow create, update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+} 

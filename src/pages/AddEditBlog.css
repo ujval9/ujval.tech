@@ -1,0 +1,626 @@
+.blog-form {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.heading {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.input-text-box,
+.description-box,
+.catg-dropdown {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-text-box:focus,
+.description-box:focus,
+.catg-dropdown:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+.description-box {
+  min-height: 200px;
+  resize: vertical;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.btn-add {
+  background: #0056b3;
+  color: white;
+  padding: 10px 30px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-add:hover:not(:disabled) {
+  background: #003d82;
+  transform: translateY(-1px);
+}
+
+.btn-add:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.btn-add.submitting {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.progress {
+  height: 5px;
+  margin-top: 10px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background-color: #0056b3;
+  transition: width 0.3s ease;
+}
+
+/* Required field indicators */
+input::placeholder,
+textarea::placeholder,
+select:invalid {
+  color: #6c757d;
+}
+
+/* Tag input styling */
+.react-tag-input {
+  border: 1px solid #ddd !important;
+  border-radius: 4px !important;
+  min-height: 45px !important;
+}
+
+.react-tag-input:focus-within {
+  border-color: #0056b3 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.react-tag-input__tag {
+  background: #e9ecef !important;
+  border-radius: 3px !important;
+  color: #495057 !important;
+  margin: 3px !important;
+}
+
+.form-check-input {
+  cursor: pointer;
+}
+
+.trending {
+  color: #495057;
+  font-weight: 500;
+}
+
+/* Emoji Tag Selector Styles */
+.emoji-tag-selector {
+  margin: 10px 0;
+}
+
+.emoji-tag-selector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.selected-emoji-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.selected-emoji-tag .emoji {
+  font-size: 24px;
+  background-color: #f8f9fa;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e6e6e6;
+}
+
+.emoji-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+}
+
+.emoji-option {
+  font-size: 24px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.emoji-option:hover {
+  background-color: #e9ecef;
+  transform: scale(1.1);
+}
+
+/* Add styles for the text formatting toolbar */
+.text-formatting-toolbar {
+  display: flex;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  padding: 5px;
+  margin-bottom: -1px;
+}
+
+.toolbar-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  margin-right: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.toolbar-btn:hover {
+  background-color: #555;
+}
+
+/* Active pin button styling */
+.active-pin {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.active-pin:hover {
+  background-color: #e0a800;
+}
+
+/* Style the image preview to appear after description */
+.img-preview {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+/* Ensure proper spacing between elements */
+.blog-form .col-12.py-3 {
+  margin-bottom: 10px;
+}
+
+/* Image Upload Popup Styles */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.image-popup {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 500px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.popup-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.popup-body {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #444;
+}
+
+.file-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.selected-file-name {
+  font-size: 0.85rem;
+  color: #666;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alignment-options {
+  display: flex;
+  margin: 10px 0 15px;
+  gap: 15px;
+}
+
+.form-check-inline {
+  display: flex;
+  align-items: center;
+  margin-right: 0;
+}
+
+.form-check-input {
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.form-check-label {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Create visual icons for alignment options */
+.form-check-label[for="alignLeft"]::after,
+.form-check-label[for="alignCenter"]::after,
+.form-check-label[for="alignRight"]::after {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 14px;
+  margin-left: 5px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.form-check-label[for="alignLeft"]::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='14' viewBox='0 0 20 14'%3E%3Crect x='0' y='2' width='8' height='3' fill='%23555'/%3E%3Crect x='0' y='7' width='20' height='1' fill='%23aaa'/%3E%3Crect x='0' y='10' width='20' height='1' fill='%23aaa'/%3E%3C/svg%3E");
+}
+
+.form-check-label[for="alignCenter"]::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='14' viewBox='0 0 20 14'%3E%3Crect x='6' y='2' width='8' height='3' fill='%23555'/%3E%3Crect x='0' y='7' width='20' height='1' fill='%23aaa'/%3E%3Crect x='0' y='10' width='20' height='1' fill='%23aaa'/%3E%3C/svg%3E");
+}
+
+.form-check-label[for="alignRight"]::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='14' viewBox='0 0 20 14'%3E%3Crect x='12' y='2' width='8' height='3' fill='%23555'/%3E%3Crect x='0' y='7' width='20' height='1' fill='%23aaa'/%3E%3Crect x='0' y='10' width='20' height='1' fill='%23aaa'/%3E%3C/svg%3E");
+}
+
+.popup-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid #e5e5e5;
+  background-color: #f8f9fa;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+/* Enhanced Toolbar Styles */
+.text-formatting-toolbar {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  padding: 5px;
+  margin-bottom: -1px;
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background-color: #ddd;
+  margin: 0 5px;
+}
+
+.emoji-tag-toolbar {
+  position: relative;
+}
+
+.emoji-btn {
+  font-size: 18px;
+}
+
+.toolbar-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 5px;
+  z-index: 10;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Image preview styling */
+.file-preview-container {
+  margin-top: 10px;
+}
+
+.file-preview {
+  position: relative;
+  display: inline-block;
+  max-width: 100px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.file-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.remove-preview {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.remove-preview:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Quill Editor Styling */
+.quill-editor {
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.quill-editor .ql-container {
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  background: #fff;
+  min-height: 200px;
+}
+
+.quill-editor .ql-toolbar {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  background: #f8f9fa;
+  border-color: #ddd;
+}
+
+.quill-editor .ql-editor {
+  font-size: 16px;
+  line-height: 1.6;
+  padding: 15px;
+}
+
+.quill-editor .ql-editor p {
+  margin-bottom: 1em;
+}
+
+/* Styles for video embeds */
+.video-embed-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  max-width: 90%; /* Limit width to 90% of container */
+  width: 90%;
+  margin: 20px auto !important; /* Center the container */
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.video-embed-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  border: none;
+}
+
+/* Custom YouTube button styling */
+.ql-video {
+  position: relative;
+}
+
+.ql-video:after {
+  content: "YouTube";
+  position: absolute;
+  top: -24px;
+  left: 0;
+  font-size: 10px;
+  color: #666;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.ql-video:hover:after {
+  opacity: 1;
+}
+
+/* Fix for link popup to ensure it's visible and usable */
+.ql-tooltip {
+  z-index: 100;
+  background-color: #fff !important;
+  border: 1px solid #ddd !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  padding: 8px 12px !important;
+  border-radius: 4px !important;
+}
+
+.ql-tooltip input {
+  width: 100% !important;
+  padding: 4px 8px !important;
+  margin: 6px 0 !important;
+  border: 1px solid #ddd !important;
+  border-radius: 3px !important;
+}
+
+.ql-tooltip a.ql-action,
+.ql-tooltip a.ql-remove {
+  color: #0056b3 !important;
+  text-decoration: none !important;
+  margin-right: 10px !important;
+}
+
+.ql-tooltip a.ql-action:hover,
+.ql-tooltip a.ql-remove:hover {
+  text-decoration: underline !important;
+}
+
+/* Hide the toolbar's overflow on small screens */
+@media (max-width: 576px) {
+  .quill-editor .ql-toolbar {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* Custom toolbar for our editor features */
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+/* Image styles inside Quill editor */
+.ql-editor img {
+  max-width: 100%;
+  height: auto;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+/* Image alignment inside the Quill editor */
+.ql-editor img[style*="float: left"] {
+  margin-right: 15px;
+  margin-bottom: 10px;
+}
+
+.ql-editor img[style*="float: right"] {
+  margin-left: 15px;
+  margin-bottom: 10px;
+}
+
+/* For Firefox which doesn't show borders for images by default */
+.ql-editor img:hover {
+  outline: 1px solid #ddd;
+} 

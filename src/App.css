@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+
+.main-content {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0 20px;
+  }
+}

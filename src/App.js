@@ -53,6 +53,8 @@ const handleLogout =()=>{
       <Route path="/" element={<Home setActive={setActive} user={user}/>}/>
       <Route path="/about" element={<About/>}/>
       <Route path="/detail/:id" element={<Detail setActive={setActive}/>}/>
+      
+      
       <Route path="/create" element={user?.uid ? <AddEditBlog user={user}/> : <Navigate to="/"/> }/>
       <Route path="/auth" element={<Auth setActive = {setActive} setUser={setUser}/>}/>
       <Route path="/update/:id" element={user?.uid ? <AddEditBlog setActive = {setActive} user={user}/> : <Navigate to="/"/> }/>

@@ -1,0 +1,167 @@
+.account-settings-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.account-settings-card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px var(--shadow-color);
+  padding: 30px;
+}
+
+.account-settings-title {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--success-color);
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.account-tabs {
+  display: flex;
+  margin-bottom: 25px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 10px 15px;
+  margin-right: 5px;
+  cursor: pointer;
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab-button:hover {
+  color: var(--text-primary);
+}
+
+.tab-button.active {
+  color: var(--success-color);
+  border-bottom: 2px solid var(--success-color);
+}
+
+.account-form {
+  margin-top: 20px;
+}
+
+.form-tab-content {
+  margin-bottom: 25px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-family: 'DotGothic16', sans-serif;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
+.form-input:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+.form-input.disabled {
+  background-color: var(--bg-accent);
+  cursor: not-allowed;
+}
+
+.form-text {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.form-check-input {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.form-check-label {
+  font-family: 'DotGothic16', sans-serif;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.notification-info {
+  background-color: var(--bg-accent);
+  border-radius: 4px;
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.notification-info p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.save-button {
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.save-button:hover {
+  background-color: #22753a;
+}
+
+.save-button:disabled {
+  background-color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .account-settings-container {
+    margin: 20px auto;
+  }
+  
+  .account-settings-card {
+    padding: 20px;
+  }
+  
+  .account-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .tab-button {
+    flex-grow: 1;
+    text-align: center;
+  }
+} 

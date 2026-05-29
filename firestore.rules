@@ -2,6 +2,13 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper function to check if user is admin
+    function isAdmin(request) {
+      return request.auth != null &&
+             request.auth.uid == "TpsRf35kPqafVMnpz4VKuIWM5O63" && 
+             request.auth.token.email == "ujvalshah1@gmail.com";
+    }
+    
     // Allow read access to all documents for all users
     match /{document=**} {
       allow read;
@@ -12,11 +19,36 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
     
+    // Comments collection rules
+    match /comments/{commentId} {
+      // Anyone can read comments (for public visibility)
+      allow read;
+      
+      // Only authenticated users can create comments
+      allow create: if request.auth != null;
+      
+      // Users can only update or delete their own comments
+      allow update, delete: if request.auth != null && 
+                             request.auth.uid == resource.data.userId;
+      
+      // Admin can delete any comment
+      allow delete: if isAdmin(request);
+    }
+    
+    // User collection rules
+    match /users/{userId} {
+      // Users can read/write their own data
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Admin can read all user data
+      allow read, write: if isAdmin(request);
+    }
+    
     // Allow read access to settings/quoteOfTheDay for all users,
-    // but only authenticated users can update it
+    // but only admin can update it
     match /settings/quoteOfTheDay {
       allow read;
-      allow write: if request.auth != null;
+      allow write: if isAdmin(request);
     }
   }
 } 

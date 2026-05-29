@@ -28,39 +28,53 @@ const Home = ({setActive, user}) => {
 
   useEffect(() => {
     try {
+      console.log("Setting up blog listener");
       const unsub = onSnapshot(
         collection(db, "blogs"),
         (snapshot) => {
           try {
             let list = []
             snapshot.docs.forEach((doc) => {
-              list.push({id: doc.id, ...doc.data()})
-            })
-            setBlogs(list)
-            setLoading(false)
-            setActive("home")
+              const blogData = { id: doc.id, ...doc.data() };
+              
+              // Ensure sortTimestamp is properly set for all blogs
+              if (!blogData.sortTimestamp && blogData.date) {
+                // If sortTimestamp is missing but we have a date, create it
+                const dateObj = new Date(blogData.date);
+                dateObj.setHours(12, 0, 0, 0);
+                blogData.sortTimestamp = dateObj.getTime();
+                console.log(`Added missing sortTimestamp for blog: ${blogData.title}`);
+              }
+              
+              list.push(blogData);
+            });
+            
+            console.log(`Loaded ${list.length} blogs`);
+            setBlogs(list);
+            setLoading(false);
+            setActive("home");
           } catch (error) {
             console.error("Error processing snapshot:", error);
-            setError("Error processing blog data: " + error.message)
-            toast.error("Error loading blogs: " + error.message)
-            setLoading(false)
+            setError("Error processing blog data: " + error.message);
+            toast.error("Error loading blogs: " + error.message);
+            setLoading(false);
           }
         },
         (error) => {
           console.error("Snapshot listener error:", error);
-          setError("Error with blog listener: " + error.message)
-          toast.error("Error loading blogs: " + error.message)
-          setLoading(false)
+          setError("Error with blog listener: " + error.message);
+          toast.error("Error loading blogs: " + error.message);
+          setLoading(false);
         }
-      )
-      return () => unsub()
+      );
+      return () => unsub();
     } catch (error) {
       console.error("Overall setup error:", error);
-      setError("Failed to set up blog listener: " + error.message)
-      toast.error("Failed to set up blog listener")
-      setLoading(false)
+      setError("Failed to set up blog listener: " + error.message);
+      toast.error("Failed to set up blog listener");
+      setLoading(false);
     }
-  }, [setActive])
+  }, [setActive]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this blog?")) {
@@ -160,6 +174,14 @@ const Home = ({setActive, user}) => {
   const sortedBlogs = React.useMemo(() => {
     if (!blogs || blogs.length === 0) return [];
     
+    // Add debugging to see what values we're working with
+    if (blogs.length > 0) {
+      console.log("Sorting blogs - data samples:");
+      blogs.slice(0, 3).forEach(blog => {
+        console.log(`Blog: ${blog.title}, Date: ${blog.date}, sortTimestamp: ${blog.sortTimestamp}`);
+      });
+    }
+    
     return [...blogs].sort((a, b) => {
       // First check if posts are pinned
       if (a.pinned && !b.pinned) return -1;
@@ -172,12 +194,25 @@ const Home = ({setActive, user}) => {
         }
       }
       
-      // Then sort by creation time (newest first)
-      if (a.timestamp && b.timestamp) {
-        return b.timestamp.seconds - a.timestamp.seconds;
+      // First priority: Use sortTimestamp (numeric millisecond timestamp) if available
+      // This ensures blogs with updated dates sort correctly
+      if (a.sortTimestamp && b.sortTimestamp) {
+        return b.sortTimestamp - a.sortTimestamp;
+      } else if (a.sortTimestamp) {
+        return -1; // a has sortTimestamp, b doesn't, so a comes first
+      } else if (b.sortTimestamp) {
+        return 1;  // b has sortTimestamp, a doesn't, so b comes first
       }
       
-      // If timestamps are not available, use date strings
+      // Second priority: Use Firestore timestamp
+      if (a.timestamp && b.timestamp) {
+        // Handle Firestore timestamps
+        if (a.timestamp.seconds && b.timestamp.seconds) {
+          return b.timestamp.seconds - a.timestamp.seconds;
+        }
+      }
+      
+      // Third priority: Fall back to date strings
       if (a.date && b.date) {
         return new Date(b.date) - new Date(a.date);
       }

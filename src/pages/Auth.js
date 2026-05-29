@@ -3,11 +3,15 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { auth } from '../firebase'
+import { doc, setDoc } from 'firebase/firestore'
+import { db } from '../firebase'
 import './Auth.css'
 
 const Auth = ({setActive, setUser}) => {
   const navigate = useNavigate()
   const initialState = {
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -16,7 +20,7 @@ const Auth = ({setActive, setUser}) => {
   const [state, setState] = useState(initialState)
   const [signUp, setSignUp] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const {email, password, confirmPassword} = state
+  const {firstName, lastName, email, password, confirmPassword} = state
 
   const handleChange = (e) => {
     setState({...state, [e.target.name]: e.target.value})
@@ -27,9 +31,15 @@ const Auth = ({setActive, setUser}) => {
       toast.error("Email and password are required")
       return false
     }
-    if (signUp && password !== confirmPassword) {
-      toast.error("Passwords don't match")
-      return false
+    if (signUp) {
+      if (!firstName || !lastName) {
+        toast.error("First and last name are required")
+        return false
+      }
+      if (password !== confirmPassword) {
+        toast.error("Passwords don't match")
+        return false
+      }
     }
     if (password.length < 6) {
       toast.error("Password must be at least 6 characters")
@@ -50,7 +60,23 @@ const Auth = ({setActive, setUser}) => {
         toast.success("Logged in successfully!")
       } else {
         const { user } = await createUserWithEmailAndPassword(auth, email, password)
-        await updateProfile(user, { displayName: email.split('@')[0] })
+        
+        // Set display name to the first name and last name
+        const displayName = `${firstName} ${lastName}`;
+        await updateProfile(user, { displayName })
+        
+        // Store additional user information in Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          firstName,
+          lastName,
+          email,
+          displayName,
+          createdAt: new Date(),
+          receiveNotifications: true, // Enable notifications by default
+          role: "subscriber" // Default role
+        });
+        
         toast.success("Account created successfully!")
       }
       setActive("home")
@@ -65,13 +91,12 @@ const Auth = ({setActive, setUser}) => {
           errorMessage = "Invalid email address"
           break
         case 'auth/wrong-password':
-          errorMessage = "Incorrect password"
-          break
         case 'auth/user-not-found':
-          errorMessage = "User not found"
+        case 'auth/invalid-login-credentials':
+          errorMessage = "You dont have access my boi!😢"
           break
         default:
-          errorMessage = error.message
+          errorMessage = "Authentication failed. Please try again."
       }
       toast.error(errorMessage)
     } finally {
@@ -87,6 +112,40 @@ const Auth = ({setActive, setUser}) => {
         </h2>
 
         <form className="auth-form" onSubmit={handleAuth}>
+          {signUp && (
+            <>
+              <div className="form-group">
+                <label htmlFor="firstName" className="form-label">
+                  First Name
+                </label>
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  required
+                  value={firstName}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="lastName" className="form-label">
+                  Last Name
+                </label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  required
+                  value={lastName}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
+            </>
+          )}
+
           <div className="form-group">
             <label htmlFor="email" className="form-label">
               Email address

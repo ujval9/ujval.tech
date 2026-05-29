@@ -1,7 +1,8 @@
 .navbar {
   padding: 1rem 0;
-  background-color: white;
-  border-bottom: 1px solid #eee;
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .navbar .container {
@@ -16,9 +17,10 @@
 .navbar-brand {
   font-family: 'DotGothic16', sans-serif;
   font-size: 1rem;
-  color: #000;
+  color: var(--text-primary);
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .nav-links {
@@ -29,18 +31,43 @@
 
 .nav-link {
   font-family: 'DotGothic16', sans-serif;
-  color: #000;
+  color: var(--text-primary);
   text-decoration: none;
   font-size: 1rem;
   transition: color 0.2s;
 }
 
 .nav-link:hover {
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .nav-link.active {
   font-weight: bold;
+}
+
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 5px 8px;
+  border-radius: 50%;
+  margin: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  background-color: var(--bg-secondary);
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.1);
+  background-color: var(--bg-accent);
+}
+
+.theme-toggle-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-color);
 }
 
 @media (max-width: 768px) {

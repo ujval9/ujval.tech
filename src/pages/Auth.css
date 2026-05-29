@@ -6,9 +6,9 @@
 }
 
 .auth-card {
-  background: white;
+  background: var(--card-bg);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--shadow-color);
   padding: 30px;
   max-width: 450px;
   margin: 0 auto;
@@ -17,7 +17,7 @@
 .auth-title {
   font-family: 'DotGothic16', sans-serif;
   font-size: 1.8rem;
-  color: #333;
+  color: var(--text-primary);
   text-align: center;
   margin-bottom: 30px;
   font-weight: 500;
@@ -38,47 +38,50 @@
 .form-label {
   font-family: 'DotGothic16', sans-serif;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .form-input {
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--input-border);
   border-radius: 4px;
   font-family: inherit;
   transition: border-color 0.2s;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
 }
 
 .form-input:focus {
-  border-color: #2c974b;
+  border-color: var(--accent-color);
   outline: none;
   box-shadow: 0 0 0 2px rgba(44, 151, 75, 0.2);
 }
 
 .auth-button {
   background-color: #E8F3D6;
-  color: #333;
-  border: 1px solid #ccc;
+  color: var(--text-primary);
+  border: 1px solid #d9e7c4;
   padding: 12px;
   border-radius: 4px;
   cursor: pointer;
   font-family: 'DotGothic16', sans-serif;
   font-size: 1rem;
   margin-top: 10px;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 8px;
 }
 
-.auth-button:hover {
-  background-color: #d9e7c2;
+/* Dark mode specific styles */
+[data-theme='dark'] .auth-button {
+  color: #121212; /* Dark text for better visibility on light green background */
 }
 
 .auth-button:disabled {
-  background-color: #f5f9ef;
-  color: #999;
+  background-color: var(--bg-secondary);
+  color: var(--text-muted);
   cursor: not-allowed;
 }
 
@@ -86,14 +89,14 @@
   display: flex;
   align-items: center;
   margin: 20px 0;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .auth-divider::before,
 .auth-divider::after {
   content: "";
   flex-grow: 1;
-  background: #ddd;
+  background: var(--border-color);
   height: 1px;
   margin: 0 10px;
 }
@@ -105,7 +108,7 @@
 .switch-button {
   background: none;
   border: none;
-  color: #2c974b;
+  color: var(--success-color); /* Green color for the link */
   cursor: pointer;
   font-family: 'DotGothic16', sans-serif;
   font-size: 0.9rem;
@@ -114,7 +117,7 @@
 }
 
 .switch-button:hover {
-  color: #22753a;
+  color: #22753a; /* Darker green on hover */
 }
 
 .spinner {

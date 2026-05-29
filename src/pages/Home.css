@@ -1,6 +1,6 @@
 .home-container { 
   padding: 30px 20px; 
-  background-color: #f9f9f9; 
+  background-color: var(--bg-primary); 
   min-height: calc(100vh - 70px); 
 }
 
@@ -24,19 +24,21 @@
 
 .mobile-quote-container {
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 @media (max-width: 992px) { 
   .main-content { 
-    flex-direction: column; 
+    flex-direction: column;
+    gap: 25px;
   } 
   .sidebar { 
     width: 100%; 
-    margin-top: 20px; 
+    margin-top: 0;
   } 
   .mobile-quote-container {
     order: 1;
+    margin-bottom: 0;
   }
   .blog-feed {
     order: 2;

@@ -1,10 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import "./Header.css"
+import { useTheme } from '../contexts/ThemeContext'
 
-const Header = ({active, setActive, user,handleLogout}) => {
-
+const Header = ({active, setActive, user, isAdmin, handleLogout}) => {
     const userId = user?.uid;
+    const { theme, toggleTheme } = useTheme();
     
     return (
         <nav className="navbar">
@@ -24,13 +25,29 @@ const Header = ({active, setActive, user,handleLogout}) => {
 
                     {userId ? (
                         <>
+                            {isAdmin && (
+                                <Link
+                                    to="/create"
+                                    className={`nav-link ${active === "create" ? "active" : ""}`}
+                                    onClick={() => setActive("create")}
+                                >
+                                    Create
+                                </Link>
+                            )}
                             <Link
-                                to="/create"
-                                className={`nav-link ${active === "create" ? "active" : ""}`}
-                                onClick={() => setActive("create")}
+                                to="/account"
+                                className={`nav-link ${active === "account" ? "active" : ""}`}
+                                onClick={() => setActive("account")}
                             >
-                                Create
+                                Account
                             </Link>
+                            <button
+                                className="theme-toggle-btn"
+                                onClick={toggleTheme}
+                                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                            >
+                                {theme === 'light' ? '🌙' : '☀️'}
+                            </button>
                             <Link
                                 to="/auth"
                                 className="nav-link"
@@ -40,13 +57,22 @@ const Header = ({active, setActive, user,handleLogout}) => {
                             </Link>
                         </>
                     ) : (
-                        <Link
-                            to="/auth"
-                            className={`nav-link ${active === "login" ? "active" : ""}`}
-                            onClick={() => setActive("login")}
-                        >
-                            Login
-                        </Link>
+                        <>
+                            <button
+                                className="theme-toggle-btn"
+                                onClick={toggleTheme}
+                                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                            >
+                                {theme === 'light' ? '🌙' : '☀️'}
+                            </button>
+                            <Link
+                                to="/auth"
+                                className={`nav-link ${active === "login" ? "active" : ""}`}
+                                onClick={() => setActive("login")}
+                            >
+                                Login
+                            </Link>
+                        </>
                     )}
                 </div>
             </div>

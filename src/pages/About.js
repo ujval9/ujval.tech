@@ -56,11 +56,14 @@ const About = () => {
   return (
     <div className="about-container">
       <div className="about-header">
+        <div className="profile-pixel-image">
+          <img src="/pixel-avatar.png" alt="Pixel art avatar of Ujval Shah" />
+        </div>
         <h2>About Me</h2>
       </div>
       
       <div className="about-intro">
-        <p>I am an experienced iOS and Flutter developer with a proven track record in mobile application development. Currently serving as an Assistant Manager at Jio Platforms Limited, I specialize in creating innovative mobile solutions with a focus on user experience and technical excellence. With a background in Computer Engineering and extensive experience across multiple platforms, I bring a comprehensive understanding of mobile development lifecycles and best practices.</p>
+        <p>I am an experienced iOS and Flutter developer with a proven track record in mobile application development. I specialize in creating innovative mobile solutions with a focus on user experience and technical excellence. With a background in Computer Engineering and extensive experience across multiple platforms, I bring a comprehensive understanding of mobile development lifecycles and best practices.</p>
         
         <div className="social-links">
           <a href="https://in.linkedin.com/in/ujval-shah" target="_blank" rel="noopener noreferrer">LinkedIn</a>
@@ -95,7 +98,7 @@ const About = () => {
       <div className="section">
         <h3>Experience</h3>
         <div className="experience-item">
-          <h4>Assistant Manager - Jio Platforms Limited</h4>
+          <h4>iOS Developer - Jio Platforms Limited</h4>
           <div className="experience-date">January 2024 - Present</div>
           <ul>
             <li>Perform user testing and bug fixes for multiple Jio apps including Jio Saavn, Jio Photos, and JioTV XR</li>
@@ -171,16 +174,16 @@ const About = () => {
       <div className="section">
         <h3>Education</h3>
         <div className="education-item">
+          <h4>Masters, Computer Science (AI/ML)</h4>
+          <p>University at Buffalo</p>
+          <div className="education-date">2025-2027 | CGPA: 3.75/4</div>
+        </div>
+
+        <div className="education-item">
           <h4>BTech, Computer Engineering</h4>
           <p>Mukesh Patel School of Technology Management & Engineering (MPSTME)</p>
           <p>Narsee Monjee Institute of Management Studies (NMIMS), Mumbai, India</p>
           <div className="education-date">2020-2023 | CGPA: 3.36/4</div>
-        </div>
-        
-        <div className="education-item">
-          <h4>Diploma, Computer Engineering</h4>
-          <p>Mukesh Patel School of Technology Management & Engineering (MPSTME)</p>
-          <div className="education-date">2017-2020 | CGPA: 2.62/4</div>
         </div>
       </div>
       

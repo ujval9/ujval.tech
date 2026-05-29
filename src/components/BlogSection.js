@@ -158,7 +158,7 @@ const BlogPostCard = ({ item, userId, formatDate, handleDelete }) => {
             )}
             <div className="date-and-tags">
               <span className="post-date">
-                {formatDate(item.date || item.timestamp)}
+                {formatDate(item.sortTimestamp || item.date || item.timestamp)}
               </span>
               {item.emojiTag && (
                 <span className="emoji-tag">
@@ -203,6 +203,19 @@ export default function BlogSection({ blogs, user, handleDelete }) {
     if (!dateValue) return "No date";
     
     try {
+      // If we have a timestamp value, convert to Date
+      if (typeof dateValue === 'number') {
+        const date = new Date(dateValue);
+        return date instanceof Date && !isNaN(date) 
+          ? date.toLocaleDateString('en-US', {
+              year: 'numeric', 
+              month: 'short', 
+              day: 'numeric'
+            })
+          : "Unknown date";
+      }
+      
+      // Handle Firestore timestamp
       let date = dateValue.toDate ? dateValue.toDate() : 
                  typeof dateValue === 'string' ? new Date(dateValue) : 
                  dateValue;

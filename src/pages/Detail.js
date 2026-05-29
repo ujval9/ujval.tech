@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import Tags from "../components/Tags";
+import Comments from "../components/Comments";
 import "./styles/Detail.css";
 
 // Helper function to check image orientation
@@ -48,10 +48,9 @@ const renderFormattedText = (text) => {
   return withLoadingPlaceholders;
 };
 
-export default function Detail() {
+export default function Detail({ user }) {
   const { id } = useParams();
   const [blog, setBlog] = useState(null);
-  const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalImage, setModalImage] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -72,14 +71,6 @@ export default function Detail() {
         if (blogDetail.exists()) {
           const blogData = { id: blogDetail.id, ...blogDetail.data() };
           setBlog(blogData);
-
-          // Fetch all tags for the Tags component
-          const tagsSnapshot = await getDocs(collection(db, "tags"));
-          const tagsList = tagsSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setTags(tagsList);
         }
       } catch (error) {
         console.error("Error fetching blog details:", error);
@@ -184,18 +175,16 @@ export default function Detail() {
             </span>
           )}
         </div>
-        
+
         <div
           className="blog-content"
           dangerouslySetInnerHTML={{ __html: processedContent }}
         />
         
-        <div className="blog-tags">
-          <span className="tags-title">Related Topics:</span>
-          <Tags tags={tags} />
-        </div>
+        {/* Comments section */}
+        <Comments blogId={id} user={user} />
       </div>
-      
+
       {/* Image Modal for fullscreen viewing */}
       {showModal && (
         <div className="image-modal active" onClick={closeImageModal}>

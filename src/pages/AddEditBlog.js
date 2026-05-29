@@ -14,6 +14,7 @@ import {
   where,
 } from "firebase/firestore";
 import { toast } from "react-toastify";
+import { sendNewBlogNotification } from "../utils/notifications";
 import "./AddEditBlog.css";
 import Spinner from "../components/Spinner";
 import heic2any from "heic2any"; // Import heic2any library for HEIC conversion
@@ -110,34 +111,47 @@ const linkHandler = function() {
   }
 };
 
-// Quill editor modules and formats configuration
-const quillModules = {
-  toolbar: {
-    container: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['link', 'image'],
-      ['video'], // Add YouTube video button
-      ['clean']
-    ],
-    handlers: {
-      video: videoHandler, // Custom handler for YouTube videos
-      link: linkHandler // Custom handler for links
+// New approach with a function to create Quill modules to ensure proper loading in production
+const createQuillModules = () => {
+  // Create toolbar container with all buttons explicitly defined
+  const container = [
+    [{ 'header': [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline'],
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    ['link'], // Removed 'image' to avoid duplicate image button
+    ['video'], // YouTube video button
+    ['clean']
+  ];
+  
+  // Create handlers object with both custom handlers
+  const handlers = {
+    video: videoHandler,
+    link: linkHandler
+  };
+  
+  // Return the complete modules configuration
+  return {
+    toolbar: {
+      container,
+      handlers
+    },
+    clipboard: {
+      matchVisual: false,
     }
-  },
-  clipboard: {
-    // Toggle to add keep full HTML when pasting
-    matchVisual: false,
-  }
+  };
 };
 
+// Use the function to create modules
+const quillModules = createQuillModules();
+
+// Updated with all necessary formats to ensure buttons appear in production
 const quillFormats = [
   'header',
   'bold', 'italic', 'underline',
-  'list', 'bullet',
+  'list', 'bullet', 'ordered',
   'link',
-  'image', 'video'
+  'image', 'video',
+  'clean'
 ];
 
 const AddEditBlog = ({user, setActive}) => {
@@ -316,104 +330,105 @@ const AddEditBlog = ({user, setActive}) => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!validateForm()) return
-
-    setIsSubmitting(true)
+    e.preventDefault();
+   
+    if (!title || !description) {
+      return toast.error("All fields are mandatory");
+    }
+    
+    if (description.length < 100) {
+      return toast.error("Description should be at least 100 characters long");
+    }
+    
+    setIsSubmitting(true);
+    
     try {
+      // Get the content from Quill editor
+      const content = quillRef.current?.getEditor().root.innerHTML || description;
+      
+      // Parse the date to ensure consistent format
+      const selectedDate = new Date(date);
+      // Set time to noon to avoid timezone issues
+      selectedDate.setHours(12, 0, 0, 0);
+      
+      // Calculate sort timestamp - CRITICAL for proper sorting
+      const sortTimestampValue = selectedDate.getTime();
+      console.log(`Blog date: ${date}, sortTimestamp: ${sortTimestampValue}`);
+      
+      // Prepare blog data
       const blogData = {
-        ...form,
-        timestamp: serverTimestamp(),
+        title,
+        description: content,
+        emojiTag,
+        date,
+        pinned,
         author: user.displayName,
         userId: user.uid,
-        reactions: {},  // Initialize empty reactions object
-        userReactions: {} // Initialize empty user reactions object
-      }
-
-      // Add pinnedAt timestamp if post is pinned
-      if (blogData.pinned) {
-        blogData.pinnedAt = serverTimestamp();
-      }
-
-      // Set a default emojiTagCount of 1
-      if (blogData.emojiTag) {
-        blogData.emojiTagCount = 1;
+        likes: [],
+        comments: [],
+        // CRITICAL: Always include sortTimestamp for consistent sorting
+        sortTimestamp: sortTimestampValue 
+      };
+      
+      if (id) {
+        // First, get the current blog data to check if date has changed
+        const blogRef = doc(db, "blogs", id);
+        const currentBlog = await getDoc(blogRef);
+        const currentBlogData = currentBlog.data();
         
-        try {
-          // Check for existing emoji counter in a separate collection
-          const emojiCountersRef = collection(db, "emojiCounters");
-          const q = await getDocs(query(emojiCountersRef, where("emoji", "==", blogData.emojiTag)));
-          
-          if (!q.empty) {
-            const counterDoc = q.docs[0];
-            const count = counterDoc.data().count || 0;
-            
-            // Update counter
-            await updateDoc(doc(db, "emojiCounters", counterDoc.id), {
-              count: count + 1
-            });
-            
-            blogData.emojiTagCount = count + 1;
-          } else {
-            // Create new counter
-            await addDoc(collection(db, "emojiCounters"), {
-              emoji: blogData.emojiTag,
-              count: 1
-            });
-          }
-        } catch (error) {
-          console.error("Error handling emoji counter:", error);
-          // Continue anyway - the post will just show a count of 1
+        // Store the original creation timestamp if not already stored
+        if (!blogData.originalTimestamp && currentBlogData.timestamp) {
+          blogData.originalTimestamp = currentBlogData.timestamp;
         }
-      }
-
-      if (!id) {
-        // Creating a new blog
-        await addDoc(collection(db, "blogs"), blogData)
-        toast.success("Blog created successfully")
+        
+        // Add currentTimestamp for update tracking
+        blogData.updatedAt = serverTimestamp();
+        
+        if (currentBlogData.date !== date) {
+          console.log(`Date changed from ${currentBlogData.date} to ${date}`);
+          console.log(`Old sortTimestamp: ${currentBlogData.sortTimestamp}, New sortTimestamp: ${sortTimestampValue}`);
+          toast.info("Blog date updated - post order will reflect the new date");
+        }
+        
+        // Update existing blog
+        await updateDoc(blogRef, blogData);
+        
+        // Force a refresh if date was changed
+        if (currentBlogData.date !== date) {
+          // Wait a bit for Firestore to update
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        toast.success("Blog updated successfully");
       } else {
-        // Updating an existing blog
-        const docRef = doc(db, "blogs", id);
-        const snapshot = await getDoc(docRef);
+        // For new blog posts
+        blogData.timestamp = serverTimestamp();
         
-        if (snapshot.exists()) {
-          const existingData = snapshot.data();
+        // Add new blog
+        const docRef = await addDoc(collection(db, "blogs"), blogData);
+        
+        // Send notifications to subscribers for new blogs
+        if (user.displayName) {
+          const newBlog = { ...blogData, id: docRef.id };
+          const notificationResult = await sendNewBlogNotification(newBlog, user.displayName);
           
-          // Handle image replacement
-          if (existingData.imgPath && 
-              blogData.imgPath && 
-              existingData.imgPath !== blogData.imgPath) {
-            try {
-              // Delete the old image if a new one was uploaded
-              const oldImageRef = ref(storage, existingData.imgPath);
-              await deleteObject(oldImageRef);
-              console.log("Old image deleted during update");
-            } catch (imageError) {
-              console.error("Error deleting old image during update:", imageError);
-              // Continue with update even if old image deletion fails
-            }
-          }
-          
-          // Keep existing reactions data
-          if (existingData.reactions) {
-            blogData.reactions = existingData.reactions;
-          }
-          if (existingData.userReactions) {
-            blogData.userReactions = existingData.userReactions;
+          if (notificationResult?.success && notificationResult.subscriberCount > 0) {
+            toast.info(`Notification sent to ${notificationResult.subscriberCount} subscribers`);
           }
         }
         
-        await updateDoc(doc(db, "blogs", id), blogData)
-        toast.success("Blog updated successfully")
+        toast.success("Blog created successfully");
       }
-      navigate("/")
+      
+      setActive("home");
+      navigate("/");
     } catch (err) {
-      console.error("Error saving blog:", err);
-      toast.error("Error saving blog: " + err.message)
+      console.error(err);
+      toast.error("Error submitting blog");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
   
   // Function to insert image directly into the Quill editor
   const insertImage = (url, alignment) => {
@@ -606,7 +621,7 @@ const AddEditBlog = ({user, setActive}) => {
         </div>
       </div>
       <div className="row h-100 justify-content-center align-items-center">
-        <div className="col-10 col-md-8 col-lg-6">
+        <div className="col-12 col-md-10 col-lg-8">
           <form className="row blog-form" onSubmit={handleSubmit}>
             <div className="col-12 py-3">
                 <input 
@@ -628,17 +643,25 @@ const AddEditBlog = ({user, setActive}) => {
                   value={date}
                   onChange={handleChange}
                 />
-              </div>
+            </div>
               
-              <div className="col-12 py-3">
+            <div className="col-12 py-3">
                 <div className="editor-toolbar">
                   <button 
                     type="button" 
                     className="toolbar-btn" 
-                    title="Insert Image"
+                    title="Insert Image from URL"
                     onClick={() => setShowImagePopup(true)}
                   >
                     🖼️
+                  </button>
+                  <button 
+                    type="button" 
+                    className="toolbar-btn" 
+                    title="Upload Image (supports HEIC)"
+                    onClick={triggerFileInput}
+                  >
+                    📤
                   </button>
                   <div className="toolbar-separator"></div>
                   <button 
@@ -676,15 +699,39 @@ const AddEditBlog = ({user, setActive}) => {
                   </div>
                 </div>
 
-                {/* Replace textarea with ReactQuill editor */}
+                {/* Hidden file input for image uploads */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileSelected}
+                  style={{ display: "none" }}
+                  accept="image/*,.heic,.HEIC"
+                />
+                
+                {file && progress !== null && progress < 100 && (
+                  <div className="progress mt-2">
+                    <div 
+                      className="progress-bar progress-bar-striped progress-bar-animated" 
+                      role="progressbar" 
+                      style={{ width: `${progress}%` }} 
+                      aria-valuenow={progress} 
+                      aria-valuemin="0" 
+                      aria-valuemax="100"
+                    >
+                      {`${progress}%`}
+                    </div>
+                  </div>
+                )}
+
+                {/* IMPORTANT: Keep video and link buttons in toolbar */}
                 <ReactQuill
                   ref={quillRef}
                   theme="snow"
-                  value={description}
-                  onChange={handleEditorChange}
                   modules={quillModules}
                   formats={quillFormats}
-                  placeholder="Write your blog post here..."
+                  value={description}
+                  onChange={handleEditorChange}
+                  placeholder="Write your blog content..."
                   className="quill-editor"
                 />
               </div>
@@ -705,158 +752,98 @@ const AddEditBlog = ({user, setActive}) => {
       
       {/* Image Upload Popup */}
       {showImagePopup && (
-        <div className="popup-overlay">
-          <div className="image-popup">
-            <div className="popup-header">
-              <h3>Image Properties</h3>
-              <button 
-                type="button" 
-                className="close-btn" 
-                onClick={() => setShowImagePopup(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="popup-body">
-              <div className="form-group">
-                <label>URL</label>
-                <input 
-                  type="text" 
-                  className="form-control"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label>Upload</label>
-                <div className="file-upload-container">
-                  <button 
-                    type="button" 
-                    className="btn btn-outline-secondary btn-sm"
-                    onClick={triggerFileInput}
-                  >
-                    Choose File
-                  </button>
-                  <span className="selected-file-name">
-                    {file ? file.name : 'no file selected'}
-                  </span>
-                  <input 
-                    type="file"
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                    onChange={handleFileSelected}
-                    accept="image/jpeg,image/png,image/gif,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.gif,.webp,.heic,.heif"
+        <div className="image-popup" style={{
+          position: 'fixed', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)',
+          zIndex: 1050,
+          backgroundColor: 'white',
+          padding: '20px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          width: '90%',
+          maxWidth: '500px'
+        }}>
+          <div className="image-popup-content">
+            <h5>Insert Image</h5>
+            <div className="mb-3">
+              <label htmlFor="imageUrl" className="form-label">Image URL</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                id="imageUrl"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://example.com/image.jpg"
               />
             </div>
-                {file && (
-                  <div className="file-preview-container">
-                    <div className="file-preview">
-                      <img 
-                        src={URL.createObjectURL(file)} 
-                        alt="Preview" 
-                        onError={(e) => {
-                          console.error("Image preview failed to load");
-                          e.target.onerror = null;
-                          e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='14' text-anchor='middle' dy='.3em' fill='%23999'%3EPreview unavailable%3C/text%3E%3C/svg%3E";
-                        }}
-                      />
-                      <button 
-                        type="button" 
-                        className="remove-preview" 
-                        onClick={() => setFile(null)} 
-                        title="Remove image"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </div>
-                )}
-                {progress !== null && (
-                  <div className="progress mt-2">
-                    <div 
-                      className="progress-bar"
-                      role="progressbar"
-                      style={{ width: `${progress}%` }}
-                      aria-valuenow={progress}
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                    >
-                      {progress}%
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Add alignment options */}
-              <div className="form-group">
-                <label>Alignment</label>
-                <div className="alignment-options">
-                  <div className="form-check form-check-inline">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="alignment"
-                      id="alignLeft"
-                      value="left"
-                      checked={imageAlignment === "left"}
-                      onChange={() => setImageAlignment("left")}
-                    />
-                    <label className="form-check-label" htmlFor="alignLeft">
-                      Left
-                    </label>
-                  </div>
-                  <div className="form-check form-check-inline">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="alignment"
-                      id="alignCenter"
-                      value="center"
-                      checked={imageAlignment === "center" || imageAlignment === "none"}
-                      onChange={() => setImageAlignment("center")}
-                    />
-                    <label className="form-check-label" htmlFor="alignCenter">
-                      Center
-                    </label>
-                  </div>
-                  <div className="form-check form-check-inline">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="alignment"
-                      id="alignRight"
-                      value="right"
-                      checked={imageAlignment === "right"}
-                      onChange={() => setImageAlignment("right")}
-                    />
-                    <label className="form-check-label" htmlFor="alignRight">
-                      Right
-                    </label>
-                  </div>
+            
+            <div className="mb-3">
+              <label className="form-label">Alignment</label>
+              <div className="alignment-options">
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="imageAlignment"
+                    id="alignLeft"
+                    value="left"
+                    checked={imageAlignment === "left"}
+                    onChange={() => setImageAlignment("left")}
+                  />
+                  <label className="form-check-label" htmlFor="alignLeft">
+                    <div className="alignment-icon align-left-icon"></div>
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="imageAlignment"
+                    id="alignCenter"
+                    value="center"
+                    checked={imageAlignment === "center"}
+                    onChange={() => setImageAlignment("center")}
+                  />
+                  <label className="form-check-label" htmlFor="alignCenter">
+                    <div className="alignment-icon align-center-icon"></div>
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="imageAlignment"
+                    id="alignRight"
+                    value="right"
+                    checked={imageAlignment === "right"}
+                    onChange={() => setImageAlignment("right")}
+                  />
+                  <label className="form-check-label" htmlFor="alignRight">
+                    <div className="alignment-icon align-right-icon"></div>
+                  </label>
                 </div>
               </div>
-
-              <div className="popup-footer">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary"
-                  onClick={() => setShowImagePopup(false)}
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-success"
-                  onClick={imageUrl ? handleInsertImageUrl : null}
-                  disabled={!imageUrl && !file}
-                >
-                  {file ? 'Upload' : 'OK'}
-                </button>
-              </div>
             </div>
+            
+            <div className="popup-actions">
+              <button 
+                type="button" 
+                className="btn btn-outline-secondary me-2"
+                onClick={() => setShowImagePopup(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-primary"
+                onClick={handleInsertImageUrl}
+              >
+                Insert
+              </button>
             </div>
+          </div>
         </div>
       )}
    </div>

@@ -5,12 +5,23 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import './QuoteOfTheDay.css';
 
+// Admin check function - add this to determine if user is admin
+const isAdmin = (user) => {
+  return user && user.uid === "TpsRf35kPqafVMnpz4VKuIWM5O63" && user.email === "ujvalshah1@gmail.com";
+};
+
 const QuoteOfTheDay = () => {
   const [user] = useAuthState(auth);
   const [quote, setQuote] = useState('The only way to do great work is to love what you do.');
   const [newQuote, setNewQuote] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
+  
+  // Check if current user is admin
+  useEffect(() => {
+    setIsAdminUser(isAdmin(user));
+  }, [user]);
 
   // Fetch the current quote
   useEffect(() => {
@@ -75,6 +86,11 @@ const QuoteOfTheDay = () => {
         return;
       }
       
+      if (!isAdminUser) {
+        toast.error('Only administrators can update the quote');
+        return;
+      }
+      
       await setDoc(doc(db, 'settings', 'quoteOfTheDay'), {
         text: newQuote.trim(),
         updatedAt: new Date(),
@@ -97,7 +113,7 @@ const QuoteOfTheDay = () => {
         <div className="quote-text">{quote}</div>
       ) : (
         <>
-          {user ? (
+          {isAdminUser ? (
             <form onSubmit={handleUpdateQuote} className="quote-form">
               <textarea
                 value={newQuote}
